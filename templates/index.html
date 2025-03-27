@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        async function predictPrice(event) {
+            event.preventDefault(); // Prevent form reload
+            
+            let formData = {
+                "YearBuilt": document.getElementById("YearBuilt").value,
+                "BedroomAbvGr": document.getElementById("BedroomAbvGr").value,
+                "FullBath": document.getElementById("FullBath").value,
+                "HalfBath": document.getElementById("HalfBath").value,
+                "KitchenAbvGr": document.getElementById("KitchenAbvGr").value
+            };
+
+            try {
+                let response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                let result = await response.json();
+                if (result.prediction) {
+                    document.getElementById("result").innerText = "💖 Predicted Price: $" + result.prediction[0].toFixed(2);
+                } else {
+                    document.getElementById("result").innerText = "❌ Error: " + result.error;
+                }
+            } catch (error) {
+                document.getElementById("result").innerText = "⚠️ Request failed!";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>🏡 House Price Prediction 💖</h2>
+        <form onsubmit="predictPrice(event)">
+            <label for="YearBuilt">Year Built:</label>
+            <input type="number" id="YearBuilt" required>
+
+            <label for="BedroomAbvGr">Bedrooms Above Ground:</label>
+            <input type="number" id="BedroomAbvGr" required>
+
+            <label for="FullBath">Full Bathrooms:</label>
+            <input type="number" id="FullBath" required>
+
+            <label for="HalfBath">Half Bathrooms:</label>
+            <input type="number" id="HalfBath" required>
+
+            <label for="KitchenAbvGr">Number of Kitchens:</label>
+            <input type="number" id="KitchenAbvGr" required>
+
+            <button type="submit">💖 Predict Price 💖</button>
+        </form>
+
+        <h3 id="result"></h3>
+    </div>
+</body>
+</html>
